@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>LoveOS 2026</title>
+
+<style>
+body{
+    margin:0;
+    font-family:monospace;
+    background:linear-gradient(135deg,#b30000,#ffcc00);
+    height:100vh;
+    overflow:hidden;
+}
+
+/* LOCK SCREEN */
+#lockScreen{
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:rgba(0,0,0,0.75);
+    color:white;
+    z-index:10;
+}
+
+.box{
+    background:rgba(0,0,0,0.85);
+    padding:40px;
+    border-radius:15px;
+    text-align:center;
+    box-shadow:0 0 20px gold;
+}
+
+input{
+    padding:10px;
+    border:none;
+    border-radius:5px;
+    text-align:center;
+}
+
+button{
+    padding:10px 20px;
+    background:gold;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+/* DESKTOP */
+.desktop{
+    padding:20px;
+    display:none;
+    color:white;
+}
+
+.icon{
+    width:120px;
+    text-align:center;
+    cursor:pointer;
+    margin:20px;
+    display:inline-block;
+    font-size:20px;
+}
+
+.icon:hover{
+    transform:scale(1.1);
+}
+
+/* WINDOWS */
+.window{
+    display:none;
+    position:absolute;
+    top:20%;
+    left:30%;
+    width:400px;
+    background:white;
+    color:black;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 0 20px gold;
+    transform:scale(0.98);
+    opacity:0;
+    transition:transform .25s ease, opacity .25s ease;
+    max-height:70vh;
+    overflow:auto;
+}
+.window.show{ opacity:1; transform:scale(1); }
+
+.close{
+    float:right;
+    cursor:pointer;
+    color:red;
+    font-weight:bold;
+}
+
+/* TASKBAR */
+.taskbar{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    background:#8b0000;
+    padding:10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    font-weight:bold;
+    color:white;
+}
+
+/* FIREWORKS */
+#fireworksCanvas{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    display:none;
+    z-index:5;
+}
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;}
+}
+
+/* Error shake */
+.shake{animation:shake 0.4s ease}
+@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-6px)}100%{transform:translateX(0)}}
+
+/* Title bar for windows (drag handle) */
+.titlebar{
+    display:flex;align-items:center;justify-content:space-between;margin:-20px -20px 10px -20px;padding:10px 14px;border-radius:10px 10px 0 0;background:#f7f7f7;font-weight:bold;cursor:move;
+}
+.titlebar .actions{display:flex;gap:8px}
+.titlebar .close{float:none}
+</style>
+</head>
+
+<body>
+
+<!-- LOCK SCREEN -->
+<div id="lockScreen">
+    <div class="box">
+        <h1>LoveOS v2.0 💖</h1>
+        <p>Ngày hai đứa mình quen nhau</p>
+        <input type="password" id="password" placeholder="••••••••">
+        <div style="margin-top:8px">
+            <label style="font-size:12px"><input type="checkbox" id="showPw"> Show key</label>
+        </div>
+        <br><br>
+        <button onclick="unlock()">Unlock</button>
+        <p id="error" style="color:red;"></p>
+    </div>
+</div>
+
+<!-- DESKTOP -->
+<div class="desktop" id="desktop">
+    <div class="icon" onclick="openWindow('letter')">
+        💌
+        <p>Letter.txt</p>
+    </div>
+
+</div>
+
+<!-- WINDOWS -->
+
+<div class="window" id="letter">
+    <div class="titlebar" data-win="letter"><span>Letter.txt</span><div class="actions"><span class="close" onclick="closeWindow('letter')">X</span></div></div>
+    <h2>Thư gửi em 💌</h2>
+    <p>
+        Chào em, có lẽ anh không biết làm gì ngoài viết thư cho em nhỉ. Tụi mình quen nhau chắc cũng đã lâu lắm rồi, từ cái lần đầu mà anh đi chơi với em, lần đầu nắm tay em, lần đầu môi chạm môi, tất cả đều bắt nguồn từ cái lần đầu tiên nhắn tin cho em. Mặc dù chúng ta chỉ làm quen qua tin nhắn, cũng chẳng phải là cái duyên gặp mặt ngoài đời. Nhưng từ cái lần anh mặc áo Grab để đưa matcha latte cho em thì lúc đó anh biết con tim mình lại yêu rồi. Tính đến hôm nay thì mình cũng quen nhau đã được 300 ngày rồi, xin lỗi em vì đã không có quà valentine, không có quà 300 ngày cho em, mặc dù anh biết em nói không sao nhưng anh biết, con gái ai mà không thích quà, con gái ai mà không thích sự bất ngờ. Từ khi yêu em, anh mới biết rằng anh còn rất nhiều thiếu xót, vậy mà em vẫn chấp nhận con người của anh, chấp nhận ngoại hình mặc dù không phải gu của em. Anh không biết tại sao anh lại yêu em nhiều đến thế, có nhiều lúc anh hơi trẻ con, nhiều lần anh hơi cọc cằn khó chịu, anh xin lỗi vì tất cả. Bản thân của anh cũng không hoàn hảo, không dành cho em những điều tốt nhất. Nhưng từ tận sâu trong đáy lòng, đoạn tình cảm này anh dành cho em không bao giờ là giả dối. Anh mong em sẽ không cố gắng chịu đựng dồn nén để rồi phải khó chịu, em cứ hãy mãi là chính em, hãy lắng nghe chính con người em, không cần phải vì anh mà chịu đựng (anh nghĩ em đọc tới khúc này em sẽ nghĩ là “ai rảnh đâu má”) nhưng anh mong là như vậy.
+    </p>
+    <p>
+        Hôm nay là mùng 1 Tết là ngày đầu của năm 🍀 Chúc em có thể trút bỏ hết mọi muộn phiền ở lại năm cũ. Bao nhiêu hạnh phúc sẽ luôn đến với em. Chúc em năm tháng vô ưu trọn đời bình an. Mong em luôn sống thật hạnh phúc, tích cực chẳng còn bất an. Dẫu cho cuộc đời có gian nan thì em vẫn luôn vững vàng. Luôn tươi cười rạng rỡ và có một năm mới vui vẻ, may mắn hạnh phúc an nhiên nhé.
+    </p>
+    <p>
+        Chúc em năm mới 2026 thật nhiều hạnh phúc, và nếu có điều ước nào cho anh, thì anh ước được nắm tay em đi hết cả đời này.
+    </p>
+</div>
+
+<div class="taskbar">
+    <span>LoveOS 2026 💖</span>
+    <div style="display:flex;align-items:center;gap:10px">
+        <button id="toggleMusicBtn" style="padding:6px 12px;background:gold;border:none;border-radius:6px;cursor:pointer">Play Music</button>
+        <span id="musicStatus">Nhạc: Đang tắt</span>
+        <span id="clock"></span>
+    </div>
+</div>
+
+<canvas id="fireworksCanvas"></canvas>
+
+<script>
+const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* UNLOCK */
+function unlock(){
+    const pass = document.getElementById("password").value;
+
+    if(pass === "23042025"){
+        document.getElementById("lockScreen").style.display="none";
+        document.getElementById("desktop").style.display="block";
+
+        setTimeout(() => {
+            launchFireworks();
+        }, 500);
+
+    } else {
+        document.getElementById("error").innerText="Sai rồi đó 😝";
+        const box = document.querySelector('#lockScreen .box');
+        box.classList.remove('shake');
+        void box.offsetWidth; // reflow
+        box.classList.add('shake');
+    }
+}
+
+// Show/hide password
+document.getElementById('showPw').addEventListener('change', (e)=>{
+    const pw = document.getElementById('password');
+    pw.type = e.target.checked ? 'text' : 'password';
+});
+
+// Enter key to unlock
+document.getElementById('password').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') unlock();
+});
+
+/* WINDOW CONTROL */
+function openWindow(id){
+    const win = document.getElementById(id);
+    win.style.display="block";
+    // center if not positioned yet
+    const rect = win.getBoundingClientRect();
+    if (Math.abs(rect.left - 0) < 1 && Math.abs(rect.top - 0) < 1) {
+        const w = rect.width || 400;
+        const h = rect.height || 260;
+        const nx = Math.max(20, (window.innerWidth - w) / 2);
+        const ny = Math.max(20, (window.innerHeight - h) / 3);
+        win.style.left = nx + 'px';
+        win.style.top = ny + 'px';
+    }
+    win.classList.add('show');
+    bringToFront(win);
+}
+function closeWindow(id){
+    const win = document.getElementById(id);
+    win.classList.remove('show');
+    setTimeout(()=>{ win.style.display="none"; }, 200);
+}
+
+// Drag windows by titlebar & z-index
+let zTop = 20;
+function bringToFront(win){
+    zTop += 1;
+    win.style.zIndex = zTop;
+}
+
+document.querySelectorAll('.titlebar').forEach(bar => {
+    let dragging = false, sx=0, sy=0, ox=0, oy=0;
+    const id = bar.getAttribute('data-win');
+    const win = document.getElementById(id);
+    bar.addEventListener('mousedown', (e)=>{
+        dragging = true; sx = e.clientX; sy = e.clientY;
+        const rect = win.getBoundingClientRect(); ox = rect.left; oy = rect.top;
+        bringToFront(win);
+        document.body.style.userSelect = 'none';
+    });
+    window.addEventListener('mousemove', (e)=>{
+        if(!dragging) return;
+        const nx = ox + (e.clientX - sx);
+        const ny = oy + (e.clientY - sy);
+        win.style.left = nx + 'px';
+        win.style.top = ny + 'px';
+    });
+    window.addEventListener('mouseup', ()=>{ dragging = false; document.body.style.userSelect=''; });
+});
+
+/* FIREWORKS */
+function launchFireworks(){
+
+    const canvas = document.getElementById("fireworksCanvas");
+    const ctx = canvas.getContext("2d");
+    const music = document.getElementById("bgMusic");
+
+    canvas.style.display = "block";
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    window.addEventListener('resize', function(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+    // Try to play music (may be blocked)
+    music.play().then(function(){ updateMusicUI(true); }).catch(function(){ updateMusicUI(false); });
+
+    var particles = [];
+    var rockets = [];
+    var fireworkInterval;
+    // Fireworks show duration (30 seconds)
+    var showDuration = 30000;
+    // Adaptive quality based on FPS
+    var fwQuality = 1; // 0.45..1.0
+    var lastFpsSample = performance.now();
+    var framesSince = 0;
+    var maxParticlesBase = reduceMotion ? 400 : 900;
+    function monitorFPS(){
+        var now = performance.now();
+        if(now - lastFpsSample >= 1000){
+            var currentFps = framesSince * 1000 / (now - lastFpsSample);
+            framesSince = 0;
+            lastFpsSample = now;
+            if(currentFps < 40){
+                fwQuality = Math.max(0.45, fwQuality - 0.15);
+            } else if(currentFps < 50){
+                fwQuality = Math.max(0.6, fwQuality - 0.10);
+            } else if(currentFps > 58){
+                fwQuality = Math.min(1.0, fwQuality + 0.05);
+            }
+        }
+    }
+
+    function shakeScreen(){
+        if(reduceMotion) return;
+        var tx = (Math.random()-0.5)*10;
+        var ty = (Math.random()-0.5)*10;
+        document.body.style.transform = 'translate(' + tx + 'px,' + ty + 'px)';
+    }
+
+    // Color palettes to keep a warm, romantic tone
+    function pickHue(){
+        var palettes = [
+            [0, 10, 20, 350],        // reds
+            [330, 340, 350],          // rose
+            [45, 50, 55, 60],         // gold/sun
+            [280, 300],               // violet accents
+        ];
+        var p = palettes[Math.floor(Math.random()*palettes.length)];
+        var h = p[Math.floor(Math.random()*p.length)];
+        return (h + (Math.random()*16 - 8) + 360) % 360;
+    }
+
+    function addRocket(){
+        var x = Math.random() * canvas.width;
+        var y = canvas.height * 0.92;
+        var targetY = canvas.height * (0.25 + Math.random()*0.2);
+        var vx = (Math.random()-0.5) * 1.6;
+        var vy = -(6 + Math.random()*2.8);
+        var hue = pickHue();
+
+        // Choose a burst style
+        var styles = reduceMotion
+            ? ['standard','ring']
+            : ['standard','ring','palm','sparkle','spiral','chrys','double','comet'];
+        var burst = styles[Math.floor(Math.random()*styles.length)];
+        var hue2 = pickHue();
+
+        rockets.push({ x:x, y:y, vx:vx, vy:vy, targetY:targetY, hue:hue, hue2:hue2, burst:burst, trail: [] });
+    }
+
+    function explodeAt(x, y, hue){
+        var maxParticles = Math.floor(maxParticlesBase * fwQuality);
+        var count = Math.floor((reduceMotion ? 60 : 120) * fwQuality);
+        var cap = Math.max(0, maxParticles - particles.length);
+        var c = Math.min(count, cap);
+        for(var i=0;i<c;i++){
+            var angle = Math.random()*Math.PI*2;
+            var speed = 2 + Math.random()*3.5;
+            var size = 1.2 + Math.random()*(2.0*fwQuality + 0.8);
+            var life = Math.floor((50 + Math.random()*40) * (0.7 + 0.3*fwQuality));
+            var colorHue = (hue + Math.floor(Math.random()*40) - 20 + 360)%360;
+            particles.push({
+                x: x,
+                y: y,
+                vx: Math.cos(angle)*speed,
+                vy: Math.sin(angle)*speed,
+                size: size,
+                life: life,
+                maxLife: life,
+                color: 'hsl(' + colorHue + ' 90% 60%)',
+                tw: Math.random() < 0.4,
+                prevX: x,
+                prevY: y
+            });
+        }
+        if(!reduceMotion){
+            for(var j=0;j<Math.floor(16*fwQuality);j++){
+                var a = Math.random()*Math.PI*2;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(a)* (3+Math.random()*2),
+                    vy: Math.sin(a)* (3+Math.random()*2),
+                    size: 1.2,
+                    life: 25,
+                    maxLife: 25,
+                    color: 'hsl(50 100% 70%)',
+                    tw: Math.random() < 0.3,
+                    prevX: x,
+                    prevY: y
+                });
+            }
+        }
+    }
+
+    function explodeRing(x, y, hue){
+        var maxParticles = Math.floor(maxParticlesBase * fwQuality);
+        var count = Math.min(Math.floor((reduceMotion ? 60 : 110) * fwQuality), Math.max(0, maxParticles - particles.length));
+        var radiusSpeed = 3.2 + 1.0*fwQuality;
+        for(var i=0;i<count;i++){
+            var angle = i * (Math.PI*2 / count);
+            var colorHue = (hue + (i%8)*3 - 12 + 360)%360;
+            particles.push({
+                x:x, y:y,
+                vx: Math.cos(angle) * radiusSpeed,
+                vy: Math.sin(angle) * radiusSpeed,
+                size: 1.6,
+                life: 60,
+                maxLife: 60,
+                color: 'hsl(' + colorHue + ' 90% 60%)',
+                tw: Math.random() < 0.5,
+                prevX:x, prevY:y
+            });
+        }
+    }
+
+    function explodePalm(x, y, hue){
+        var fronds = 8 + Math.floor(6*fwQuality);
+        for(var i=0;i<fronds;i++){
+            var angle = Math.PI*2 * i / fronds;
+            var speed = 4.5 + Math.random()*2.0;
+            particles.push({
+                x:x, y:y,
+                vx: Math.cos(angle)*speed,
+                vy: Math.sin(angle)*speed - 0.5,
+                size: 2.2,
+                life: 70,
+                maxLife: 70,
+                color: 'hsl(' + hue + ' 100% 58%)',
+                tw: false,
+                prevX:x, prevY:y
+            });
+        }
+        // gold crackle
+        explodeAt(x, y, 50);
+    }
+
+    function explodeSparkle(x, y, hue){
+        var count = Math.floor((reduceMotion ? 70 : 140) * fwQuality);
+        var cap = Math.max(0, Math.floor(maxParticlesBase*fwQuality) - particles.length);
+        var c = Math.min(count, cap);
+        for(var i=0;i<c;i++){
+            var a = Math.random()*Math.PI*2;
+            var speed = 2.2 + Math.random()*2.6;
+            var colorHue = (hue + Math.floor(Math.random()*24) - 12 + 360)%360;
+            particles.push({
+                x:x, y:y,
+                vx: Math.cos(a)*speed,
+                vy: Math.sin(a)*speed,
+                size: 1.3,
+                life: 55,
+                maxLife: 55,
+                color: 'hsl(' + colorHue + ' 92% 64%)',
+                tw: true,
+                prevX:x, prevY:y
+            });
+        }
+    }
+
+    function explodeSpiral(x, y, hue){
+        var arms = 4;
+        var steps = 42;
+        for(var k=0;k<arms;k++){
+            for(var i=0;i<steps;i++){
+                var t = i/steps * (Math.PI*2);
+                var a = t + k*(Math.PI*2/arms);
+                var speed = 1.6 + i/steps * (reduceMotion ? 2.0 : 3.2);
+                particles.push({
+                    x:x, y:y,
+                    vx: Math.cos(a)*speed,
+                    vy: Math.sin(a)*speed,
+                    size: 1.5,
+                    life: 60,
+                    maxLife: 60,
+                    color: 'hsl(' + hue + ' 90% 62%)',
+                    tw: Math.random()<0.3,
+                    prevX:x, prevY:y
+                });
+            }
+        }
+    }
+
+    function explodeChrys(x, y, hue){
+        var petals = 18 + Math.floor(10*fwQuality);
+        for(var i=0;i<petals;i++){
+            var a = Math.PI*2 * i / petals;
+            var speed = 3.2 + Math.random()*2.2;
+            particles.push({
+                x:x, y:y,
+                vx: Math.cos(a)*speed,
+                vy: Math.sin(a)*speed,
+                size: 1.8,
+                life: 65,
+                maxLife: 65,
+                color: 'hsl(' + hue + ' 95% 60%)',
+                tw: false,
+                prevX:x, prevY:y
+            });
+        }
+        explodeAt(x, y, hue);
+    }
+
+    function explodeDouble(x, y, hue1, hue2){
+        explodeAt(x, y, hue1);
+        setTimeout(function(){ explodeAt(x, y, hue2); }, 80);
+    }
+
+    function explodeComet(x, y, hue){
+        // small pop with lots of glitter
+        explodeSparkle(x, y, hue);
+    }
+
+    function explodeByType(r){
+        var x=r.x, y=r.y;
+        var h=r.hue, h2=r.hue2 || (r.hue + 40)%360;
+        switch(r.burst){
+            case 'ring':      explodeRing(x,y,h); break;
+            case 'palm':      explodePalm(x,y,h); break;
+            case 'sparkle':   explodeSparkle(x,y,h); break;
+            case 'spiral':    explodeSpiral(x,y,h); break;
+            case 'chrys':     explodeChrys(x,y,h); break;
+            case 'double':    explodeDouble(x,y,h,h2); break;
+            case 'comet':     explodeComet(x,y,h); break;
+            default:          explodeAt(x,y,h);
+        }
+    }
+
+    function createFirework(){
+        shakeScreen();
+        var targetRockets = Math.max(1, Math.floor((reduceMotion ? 2 : 4) * fwQuality));
+        if(rockets.length < targetRockets) addRocket();
+        var extraChance = (reduceMotion ? 0.15 : 0.25) * fwQuality;
+        if(Math.random() < extraChance) addRocket();
+    }
+
+    function update(){
+        framesSince += 1;
+        monitorFPS();
+        var fadeAlpha = 0.20 + (1 - fwQuality)*0.05;
+        ctx.fillStyle = 'rgba(0,0,0,' + fadeAlpha + ')';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        for(var i=rockets.length-1;i>=0;i--){
+            var r = rockets[i];
+            r.prevX = r.x; r.prevY = r.y;
+            r.x += r.vx;
+            r.y += r.vy;
+            r.vy += 0.06;
+            r.trail.push({x:r.x, y:r.y});
+            var maxTrail = 6 + Math.floor(6*fwQuality);
+            if(r.trail.length > maxTrail) r.trail.shift();
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            for(var t=0;t<r.trail.length;t++){
+                var point = r.trail[t];
+                var a = t / r.trail.length;
+                var hueStr = 'hsl(' + r.hue + ' 90% 60%)';
+                ctx.shadowColor = hueStr;
+                var blur = Math.max(6, 12*fwQuality);
+                if(r.burst === 'comet') blur *= 1.8;
+                ctx.shadowBlur = blur;
+                ctx.fillStyle = hueStr;
+                ctx.globalAlpha = a * (0.45 + 0.25*fwQuality);
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, r.burst === 'comet' ? 3 : 2, 0, Math.PI*2);
+                ctx.fill();
+                if(fwQuality > 0.65){
+                    ctx.globalAlpha = a * 0.35;
+                    ctx.strokeStyle = hueStr;
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.moveTo(r.prevX||point.x, r.prevY||point.y);
+                    ctx.lineTo(point.x, point.y);
+                    ctx.stroke();
+                }
+            }
+            ctx.restore();
+
+            if(r.y <= r.targetY || r.vy >= 0){
+                explodeByType(r);
+                rockets.splice(i,1);
+            }
+        }
+
+        for(var k=particles.length-1;k>=0;k--){
+            var p = particles[k];
+            p.prevX = p.x; p.prevY = p.y;
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vx *= 0.985;
+            p.vy *= 0.985;
+            p.vy += 0.06;
+            p.life -= 1;
+            var alpha = Math.max(0, p.life / p.maxLife);
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.globalAlpha = Math.pow(alpha, 1.5);
+            if(p.tw){
+                ctx.globalAlpha *= 0.65 + 0.35 * Math.sin((p.maxLife - p.life) * 0.35);
+            }
+            ctx.shadowColor = p.color;
+            ctx.shadowBlur = (10 + p.size*2) * fwQuality;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctx.fill();
+
+            if(fwQuality > 0.65){
+                ctx.globalAlpha = Math.pow(alpha, 2) * 0.6;
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(p.prevX, p.prevY);
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            if(p.life <= 0 || p.y > canvas.height + 50){
+                particles.splice(k,1);
+            }
+        }
+
+        requestAnimationFrame(update);
+    }
+
+    function createHeartExplosion(){
+        var centerX = canvas.width/2;
+        var centerY = canvas.height/2;
+        var hueBase = 340;
+        var step = 0.05 / Math.max(0.6, fwQuality);
+        var maxParticles = Math.floor(maxParticlesBase * fwQuality);
+        for(var t=0;t<Math.PI*2;t+=step){
+            var xv = 16*Math.pow(Math.sin(t),3);
+            var yv = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
+            var mag = Math.sqrt(xv*xv + yv*yv) || 1;
+            xv /= mag; yv /= mag;
+            var speed = ((reduceMotion ? 2.0 : 3.5) + Math.random()*1.2) * (0.8 + 0.4*fwQuality);
+            var size = 1.3 + Math.random()*(1.8*fwQuality + 0.7);
+            var life = Math.floor((60 + Math.random()*30) * (0.7 + 0.3*fwQuality));
+            var hue = (hueBase + Math.floor(Math.random()*30) - 15 + 360)%360;
+            if(particles.length < maxParticles){
+            particles.push({
+                x: centerX,
+                y: centerY,
+                vx: xv*speed,
+                vy: -yv*speed,
+                size: size,
+                life: life,
+                maxLife: life,
+                color: 'hsl(' + hue + ' 90% 60%)',
+                prevX: centerX,
+                prevY: centerY
+            });
+            }
+        }
+        explodeAt(centerX, centerY, hueBase);
+    }
+
+    fireworkInterval = setInterval(createFirework, reduceMotion ? 1200 : 600);
+
+    setTimeout(function(){
+        clearInterval(fireworkInterval);
+        document.body.style.transform = "translate(0,0)";
+        createHeartExplosion();
+        fadeInText();
+    }, showDuration);
+
+    update();
+}
+
+function fadeInText(){
+    const canvas = document.getElementById("fireworksCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const fullText = "Chúc em năm mới thật hạnh phúc ❤️";
+    let visibleChars = 0;          // typewriter reveal
+    let targetY = canvas.height/2; // final Y
+    let currentY = targetY + 40;   // start slightly below, slide up
+    let typingDone = false;
+
+    // Draw loop on top of fireworks frames
+    function draw(ts){
+        // gentle slide-in toward center
+        currentY += (targetY - currentY) * 0.08;
+
+        // blink caret every ~500ms while typing
+        const caretOn = !typingDone && (Math.floor((ts||0)/500) % 2 === 0);
+        const textNow = fullText.slice(0, visibleChars) + (caretOn ? "▌" : "");
+
+        ctx.save();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "gold";
+        ctx.font = "50px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(textNow, canvas.width/2, currentY);
+        ctx.restore();
+
+        requestAnimationFrame(draw);
+    }
+
+    // Kick off drawing
+    requestAnimationFrame(draw);
+
+    // Typewriter timing: ~40ms per char
+    const typer = setInterval(()=>{
+        if(visibleChars < fullText.length){
+            visibleChars += 1;
+        } else {
+            typingDone = true;
+            clearInterval(typer);
+            // After typing finishes, proceed to open Letter
+            setTimeout(endSequence, 1200);
+        }
+    }, 40);
+}
+
+function endSequence(){
+    // Hide fireworks canvas and open Letter
+    const canvas = document.getElementById('fireworksCanvas');
+    if(canvas){ canvas.style.display = 'none'; }
+    openWindow('letter');
+}
+
+</script>
+<audio id="bgMusic" src="music/tiktok_audio.mp3"></audio>
+
+<script>
+// Taskbar clock
+function updateClock(){
+    const el = document.getElementById('clock');
+    if(!el) return;
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    const ss = String(now.getSeconds()).padStart(2,'0');
+    el.textContent = hh + ':' + mm + ':' + ss;
+}
+updateClock(); setInterval(updateClock, 1000);
+
+// Music toggle button (taskbar)
+const musicEl = document.getElementById('bgMusic');
+const toggleBtn = document.getElementById('toggleMusicBtn');
+const musicStatus = document.getElementById('musicStatus');
+function updateMusicUI(playing){
+    if(!toggleBtn || !musicStatus) return;
+    toggleBtn.textContent = playing ? 'Pause Music' : 'Play Music';
+    musicStatus.textContent = 'Nhạc: ' + (playing ? 'Đang phát' : 'Đang tắt');
+}
+if(toggleBtn && musicEl){
+    toggleBtn.addEventListener('click', ()=>{
+        if(musicEl.paused){ musicEl.play().then(()=>updateMusicUI(true)).catch(()=>updateMusicUI(false)); }
+        else { musicEl.pause(); updateMusicUI(false); }
+    });
+}
+
+// Keep canvas fit on resize (if already visible)
+const canvas2 = document.getElementById('fireworksCanvas');
+if(canvas2){
+    const fit = ()=>{ canvas2.width = window.innerWidth; canvas2.height = window.innerHeight; };
+    window.addEventListener('resize', fit);
+}
+</script>
+
+</body>
+</html>
